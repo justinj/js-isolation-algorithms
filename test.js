@@ -7,6 +7,7 @@ var {ok, err} = require('./result');
 
 var incrementChecker = require('./checkers/increment');
 var accountsChecker = require('./checkers/accounts');
+var debitChecker = require('./checkers/debit');
 
 let combine = (a, b) => {
   let result = {};
@@ -24,6 +25,8 @@ let combine = (a, b) => {
   return result;
 };
 
+const NUM_RUNS = 1;
+
 function runChecker(schedulerConstructor, checker) {
   let results = {
     runs: 0,
@@ -31,7 +34,7 @@ function runChecker(schedulerConstructor, checker) {
     aborts: 0,
   };
 
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < NUM_RUNS; i++) {
     results = combine(
       results,
       checker(schedulerConstructor)
@@ -61,6 +64,11 @@ describe('2pl', () => {
     let result = runChecker(TwoPhaseLockingScheduler, accountsChecker);
     assert.equal(result.failures, 0);
   });
+
+  it('runs the debit checker', () => {
+    let result = runChecker(TwoPhaseLockingScheduler, debitChecker);
+    assert.equal(result.failures, 0);
+  });
 });
 
 describe('snapshot', () => {
@@ -71,6 +79,12 @@ describe('snapshot', () => {
 
   it('runs the accounts checker', () => {
     let result = runChecker(SnapshotScheduler, incrementChecker);
+    assert.equal(result.failures, 0);
+  });
+
+  it('runs the debit checker', () => {
+    // This fails (as it should).
+    let result = runChecker(SnapshotScheduler, debitChecker);
     assert.equal(result.failures, 0);
   });
 });

@@ -1,8 +1,10 @@
 const WRITE = 'WRITE';
 const READ = 'READ';
+const FAIL = 'FAIL';
 
 const write = (item, value) => ({type: WRITE, item, value});
 const read = (item, def = undefined) => ({type: READ, item, def});
+const fail = message => ({type: FAIL, message});
 
 // We stuff these on the transaction record so we can safely expose the
 // transaction record to the implementor and allow them to modify it.
@@ -63,6 +65,11 @@ class TransactionScheduler {
           }
           t[_nextValue_] = next;
           break;
+        case FAIL:
+          this.failed = true;
+          this.failMsg = value.message;
+          this.transactions = [];
+          break;
       }
     } else {
       this.attemptCommit(t);
@@ -110,4 +117,5 @@ module.exports = {
   TransactionScheduler,
   write,
   read,
+  fail,
 };

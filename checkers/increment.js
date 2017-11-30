@@ -25,7 +25,6 @@ module.exports = function incrementChecker(schedulerConstructor) {
   s.run();
   let result = s.execute(readItem('a'));
   if (result !== 100) {
-    console.log(result);
     return err(`result of 100 increments was ${result}`);
   }
   return ok(s.stats());
