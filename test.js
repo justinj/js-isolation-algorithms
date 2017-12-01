@@ -1,5 +1,6 @@
 var assert = require('assert');
 var TwoPhaseLockingScheduler = require('./schedulers/two-phase-locking-scheduler');
+var NoCoordinationScheduler = require('./schedulers/no-coordination-scheduler');
 var SnapshotScheduler = require('./schedulers/snapshot-scheduler');
 var {write, read} = require('./index');
 
@@ -55,48 +56,72 @@ function runChecker(schedulerConstructor, checker) {
   return results;
 }
 
-describe('2pl', () => {
-  it('runs the increment checker', () => {
-    let result = runChecker(TwoPhaseLockingScheduler, incrementChecker);
-    assert.equal(result.failures, 0);
-  });
+const SCHEDULERS = [
+  TwoPhaseLockingScheduler,
+  NoCoordinationScheduler,
+  SnapshotScheduler,
+];
 
-  it('runs the accounts checker', () => {
-    let result = runChecker(TwoPhaseLockingScheduler, accountsChecker);
-    assert.equal(result.failures, 0);
-  });
+const CHECKERS = [
+  incrementChecker,
+  accountsChecker,
+  debitChecker,
+  readWritesChecker,
+];
 
-  it('runs the debit checker', () => {
-    let result = runChecker(TwoPhaseLockingScheduler, debitChecker);
-    assert.equal(result.failures, 0);
-  });
-
-  it('runs the read-writes checker', () => {
-    let result = runChecker(TwoPhaseLockingScheduler, readWritesChecker);
-    assert.equal(result.failures, 0);
+SCHEDULERS.forEach(scheduler => {
+  describe(scheduler.name, () => {
+    CHECKERS.forEach(checker => {
+      it(`runs the ${checker.name} checker`, () => {
+        let result = runChecker(scheduler, checker);
+        assert.equal(result.failures, 0);
+      });
+    });
   });
 });
 
-describe('snapshot', () => {
-  it('runs the increment checker', () => {
-    let result = runChecker(SnapshotScheduler, incrementChecker);
-    assert.equal(result.failures, 0);
-  });
+// describe('2pl', () => {
+//   it('runs the increment checker', () => {
+//     let result = runChecker(TwoPhaseLockingScheduler, incrementChecker);
+//     assert.equal(result.failures, 0);
+//   });
 
-  it('runs the accounts checker', () => {
-    let result = runChecker(SnapshotScheduler, incrementChecker);
-    assert.equal(result.failures, 0);
-  });
+//   it('runs the accounts checker', () => {
+//     let result = runChecker(TwoPhaseLockingScheduler, accountsChecker);
+//     assert.equal(result.failures, 0);
+//   });
 
-  it('runs the debit checker', () => {
-    // This fails (as it should).
-    let result = runChecker(SnapshotScheduler, debitChecker);
-    assert.equal(result.failures, 0);
-  });
+//   it('runs the debit checker', () => {
+//     let result = runChecker(TwoPhaseLockingScheduler, debitChecker);
+//     assert.equal(result.failures, 0);
+//   });
 
-  it('runs the read-writes checker', () => {
-    // This fails (as it should).
-    let result = runChecker(SnapshotScheduler, readWritesChecker);
-    assert.equal(result.failures, 0);
-  });
-});
+//   it('runs the read-writes checker', () => {
+//     let result = runChecker(TwoPhaseLockingScheduler, readWritesChecker);
+//     assert.equal(result.failures, 0);
+//   });
+// });
+
+// describe('snapshot', () => {
+//   it('runs the increment checker', () => {
+//     let result = runChecker(SnapshotScheduler, incrementChecker);
+//     assert.equal(result.failures, 0);
+//   });
+
+//   it('runs the accounts checker', () => {
+//     let result = runChecker(SnapshotScheduler, incrementChecker);
+//     assert.equal(result.failures, 0);
+//   });
+
+//   it('runs the debit checker', () => {
+//     // This fails (as it should).
+//     let result = runChecker(SnapshotScheduler, debitChecker);
+//     assert.equal(result.failures, 0);
+//   });
+
+//   it('runs the read-writes checker', () => {
+//     // This fails (as it should).
+//     let result = runChecker(SnapshotScheduler, readWritesChecker);
+//     assert.equal(result.failures, 0);
+//   });
+// });
