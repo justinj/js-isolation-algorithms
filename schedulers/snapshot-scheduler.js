@@ -21,6 +21,9 @@ module.exports = class SnapshotScheduler extends TransactionScheduler {
   }
 
   get(t, item) {
+    if (t.writes.has(item)) {
+      return t.writes.get(item);
+    }
     return this.state.get(item, t.ts);
   }
 

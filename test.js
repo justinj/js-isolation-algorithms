@@ -8,6 +8,7 @@ var {ok, err} = require('./result');
 var incrementChecker = require('./checkers/increment');
 var accountsChecker = require('./checkers/accounts');
 var debitChecker = require('./checkers/debit');
+var readWritesChecker = require('./checkers/read-writes');
 
 let combine = (a, b) => {
   let result = {};
@@ -69,6 +70,11 @@ describe('2pl', () => {
     let result = runChecker(TwoPhaseLockingScheduler, debitChecker);
     assert.equal(result.failures, 0);
   });
+
+  it('runs the read-writes checker', () => {
+    let result = runChecker(TwoPhaseLockingScheduler, readWritesChecker);
+    assert.equal(result.failures, 0);
+  });
 });
 
 describe('snapshot', () => {
@@ -85,6 +91,12 @@ describe('snapshot', () => {
   it('runs the debit checker', () => {
     // This fails (as it should).
     let result = runChecker(SnapshotScheduler, debitChecker);
+    assert.equal(result.failures, 0);
+  });
+
+  it('runs the read-writes checker', () => {
+    // This fails (as it should).
+    let result = runChecker(SnapshotScheduler, readWritesChecker);
     assert.equal(result.failures, 0);
   });
 });

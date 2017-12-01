@@ -1,7 +1,6 @@
 // The accounts checker attempts to move money between accounts, maintaining a
 // zero sum.
 
-var assert = require('assert');
 var {write, read} = require('../index');
 var {ok, err} = require('../result');
 
